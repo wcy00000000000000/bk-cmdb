@@ -28,6 +28,8 @@ import (
 	"configcenter/src/common/blog"
 	"configcenter/src/common/types"
 	"configcenter/src/common/version"
+	"configcenter/src/scene_server/admin_server/alarm"
+	alarmtype "configcenter/src/scene_server/admin_server/alarm/types"
 	"configcenter/src/scene_server/admin_server/app/options"
 	"configcenter/src/scene_server/admin_server/authsynchronizer"
 	"configcenter/src/scene_server/admin_server/configures"
@@ -114,6 +116,19 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 		} else {
 			blog.Infof("disable auth center access.")
 		}
+
+		if process.Config.Alarm.Enable {
+			blog.Info("enable alarm.")
+			alert, err := alarm.NewAlarm(process.Config.Alarm, engine.ServiceManageInterface, process.Config.Register.Address)
+			if nil != err {
+				return fmt.Errorf("new alarm failed: %v", err)
+			}
+			if err := alert.Run(); nil != err {
+				return fmt.Errorf("run alarm failed: %v", err)
+			}
+		} else {
+			blog.Infof("disable alarm.")
+		}
 		break
 	}
 	err = backbone.StartServer(ctx, cancel, engine, service.WebService(), true)
@@ -163,6 +178,11 @@ func (h *MigrateServer) onHostConfigUpdate(previous, current cc.ProcessConfig) {
 		h.Config.AuthCenter, err = authcenter.ParseConfigFromKV("auth", current.ConfigMap)
 		if err != nil && auth.IsAuthed() {
 			blog.Errorf("parse authcenter error: %v, config: %+v", err, current.ConfigMap)
+		}
+
+		h.Config.Alarm, err = alarmtype.ParseConfigFromKV("alarm", current.ConfigMap)
+		if err != nil && h.Config.Alarm.Enable {
+			blog.Errorf("parse alarm error: %v, config: %+v", err, current.ConfigMap)
 		}
 	}
 }
