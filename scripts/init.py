@@ -257,6 +257,12 @@ elasticsearch-replica-num = "$es_replica_num"
 #    secretsToken:
 #    secretsProject:
 #    secretsEnv:
+#crypto:
+#  algorithm:
+#  sm4:
+#    key:
+#  aesGcm:
+#    key:
 
 #elasticsearch配置
 es:

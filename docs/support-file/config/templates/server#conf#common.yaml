@@ -125,9 +125,9 @@ authServer:
 
 #cloudServer专属配置
 cloudServer:
-  # 加密服务使用
+  # 加密服务使用，通过密码服务获取密钥
   cryptor:
-    enableCryptor: true
+    enableCryptor: false
     # 访问密码服务来获取密钥的URL，格式如/api/v1/secrets/cloud_account
     secretKeyUrl: __BK_CMDB_SECRET_KEY_URL__
     # 密钥服务的地址，必须以http://或者https://开头
@@ -142,6 +142,19 @@ cloudServer:
   syncTask:
     # 同步周期,最小为5分钟
     syncPeriodMinutes: __BK_CMDB_CLOUD_SYNC_PERIOD_MINUTES__
+
+# 新版加解密相关配置，包括密钥等信息，如果设置了该配置项，则cloudServer使用该配置而非cloudServer.cryptor配置进行加解密
+crypto:
+  # 加密算法类型，枚举值：CLASSIC（国际算法）、SHANGMI（国密算法）
+  algorithm: __BK_CRYPTO_TYPE__
+  # 使用SM4算法时所需的配置
+  sm4:
+    # 密钥
+    key: __BK_CMDB_SM4_ENCRYPT_PASSWORD__
+  # 使用AES-GCM算法时所需的配置
+  aesGcm:
+    # 密钥
+    key: __BK_CMDB_AES_ENCRYPT_PASSWORD__
 
 # datacollection专属配置
 datacollection:
