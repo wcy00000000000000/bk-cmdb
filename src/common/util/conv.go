@@ -358,3 +358,15 @@ func SliceInterfaceToBool(faceSlice []interface{}) ([]bool, error) {
 	}
 	return results, nil
 }
+
+// DecodeRawJsonArr decode raw json message array into actual type array
+func DecodeRawJsonArr[T any](data []json.RawMessage) ([]T, error) {
+	result := make([]T, len(data))
+	for i, raw := range data {
+		err := json.Unmarshal(raw, &result[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return result, nil
+}
