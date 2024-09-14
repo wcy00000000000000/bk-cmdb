@@ -175,6 +175,24 @@ func (c *Mongo) initIDGenerator() (int, error) {
 			return 0, fmt.Errorf("id generator type %s is invalid", typ)
 		}
 
+		// add id generator if not exists
+		cnt, err := c.Table(common.BKTableNameIDgenerator).Find(map[string]interface{}{"_id": sequenceName}).Count(ctx)
+		if err != nil {
+			return 0, fmt.Errorf("check if %s id generator exists failed, err: %v, ", sequenceName, err)
+		}
+
+		if cnt == 0 {
+			insertData := map[string]interface{}{
+				"_id":        sequenceName,
+				"SequenceID": id,
+			}
+			err = c.Table(common.BKTableNameIDgenerator).Insert(ctx, insertData)
+			if err != nil && !mongo.IsDuplicateKeyError(err) {
+				return 0, fmt.Errorf("insert id generator failed, err: %v, data: %+v", err, insertData)
+			}
+		}
+
+		// update id generator sequence id if it is greater than current sequence id
 		updateCond := map[string]interface{}{
 			"_id":        sequenceName,
 			"SequenceID": map[string]interface{}{common.BKDBLT: id},
@@ -736,8 +754,19 @@ func (c *Collection) tryArchiveDeletedDoc(ctx context.Context, filter types.Filt
 		return nil
 	}
 
+	// only archive the specified fields for delete docs
+	var findOpts *options.FindOptions
+	fields := table.GetDelArchiveFields(c.collName)
+	if len(fields) > 0 {
+		projection := map[string]int{"_id": 1}
+		for _, field := range fields {
+			projection[field] = 1
+		}
+		findOpts = &options.FindOptions{Projection: projection}
+	}
+
 	docs := make([]bsonx.Doc, 0)
-	cursor, err := c.dbc.Database(c.dbname).Collection(c.collName).Find(ctx, filter, nil)
+	cursor, err := c.dbc.Database(c.dbname).Collection(c.collName).Find(ctx, filter, findOpts)
 	if err != nil {
 		return err
 	}
