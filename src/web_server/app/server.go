@@ -143,12 +143,25 @@ func initWebService(webSvr *WebServer, engine *backbone.Engine) (*websvc.Service
 	}
 
 	// init api gateway client
+	apigwClients := make([]apigw.ClientType, 0)
+	if webSvr.Config.DeploymentMethod == common.BluekingDeployment {
+		apigwClients = append(apigwClients, apigw.Cmdb)
+	}
+	if webSvr.Config.LoginVersion == common.BKBluekingLoginPluginVersion {
+		apigwClients = append(apigwClients, apigw.Login)
+	}
+	if webSvr.Config.EnableNotification {
+		apigwClients = append(apigwClients, apigw.Notice)
+	}
+	err = apigwcli.Init("apiGW", engine.Metric().Registry(), []apigw.ClientType{apigw.Cmdb, apigw.Notice,
+		apigw.Login})
+	if err != nil {
+		return nil, fmt.Errorf("init api gateway client error, err: %v", err)
+	}
+
+	// init api client
 	switch webSvr.Config.DeploymentMethod {
 	case common.BluekingDeployment:
-		err = apigwcli.Init("apiGW", engine.Metric().Registry(), []apigw.ClientType{apigw.Cmdb, apigw.Notice})
-		if err != nil {
-			return nil, fmt.Errorf("init api gateway client error, err: %v", err)
-		}
 
 		cmdbCli := apigwcli.Client().Cmdb()
 		headerWrapper := rest.HeaderWrapper(cmdbCli.SetApiGWAuthHeader)
@@ -169,7 +182,6 @@ func (w *WebServer) onServerConfigUpdate(previous, current cc.ProcessConfig) {
 	w.Config.Site.ResourcesPath, _ = cc.String("webServer.site.resourcesPath")
 	w.Config.Site.BkLoginUrl, _ = cc.String("webServer.site.bkLoginUrl")
 	w.Config.Site.AppCode, _ = cc.String("webServer.site.appCode")
-	w.Config.Site.CheckUrl, _ = cc.String("webServer.site.checkUrl")
 
 	authscheme, err := cc.String("webServer.site.authscheme")
 	if err != nil {
