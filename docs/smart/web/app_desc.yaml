@@ -1,5 +1,5 @@
 specVersion: 3
-appVersion: "3.14.3"
+appVersion: "3.15.1-feature-tenant1"
 app:
   region: "default"
   bkAppCode: "bk_cmdb_saas"
