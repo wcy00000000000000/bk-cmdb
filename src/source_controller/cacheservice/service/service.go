@@ -16,7 +16,6 @@ package service
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"configcenter/src/ac/extensions"
 	"configcenter/src/ac/iam"
@@ -36,8 +35,9 @@ import (
 	"configcenter/src/source_controller/cacheservice/event/flow"
 	"configcenter/src/source_controller/cacheservice/event/identifier"
 	"configcenter/src/source_controller/coreservice/core"
-	"configcenter/src/storage/dal/mongo/local"
-	"configcenter/src/storage/stream"
+	"configcenter/src/storage/driver/mongodb"
+	"configcenter/src/storage/stream/task"
+	"configcenter/src/storage/stream/types"
 	"configcenter/src/thirdparty/logplatform/opentelemetry"
 
 	"github.com/emicklei/go-restful/v3"
@@ -93,16 +93,13 @@ func (s *cacheService) SetConfig(cfg options.Config, engine *backbone.Engine, er
 	}
 	s.authManager = extensions.NewAuthManager(engine.CoreAPI, iamCli)
 
-	watcher, loopErr := stream.NewLoopStream(s.cfg.Mongo.GetMongoConf(), engine.ServiceManageInterface)
-	if loopErr != nil {
-		blog.Errorf("new loop stream failed, err: %v", loopErr)
-		return loopErr
+	watchTaskOpt := &types.NewTaskOptions{
+		StopNotifier: make(<-chan struct{}),
 	}
-
-	watchDB, dbErr := local.NewMgo(s.cfg.WatchMongo.GetMongoConf(), time.Minute)
-	if dbErr != nil {
-		blog.Errorf("new watch mongo client failed, err: %v", dbErr)
-		return dbErr
+	watchTask, taskErr := task.New(mongodb.Dal(), mongodb.Dal("watch"), engine.ServiceManageInterface, watchTaskOpt)
+	if taskErr != nil {
+		blog.Errorf("new watch task instance failed, err: %v", taskErr)
+		return taskErr
 	}
 
 	c, cacheErr := cacheop.NewCache(watcher, engine.ServiceManageInterface, watchDB)
@@ -112,26 +109,25 @@ func (s *cacheService) SetConfig(cfg options.Config, engine *backbone.Engine, er
 	}
 	s.cacheSet = c
 
-	ccDB, dbErr := local.NewMgo(s.cfg.Mongo.GetMongoConf(), time.Minute)
-	if dbErr != nil {
-		blog.Errorf("new cc mongo client failed, err: %v", dbErr)
-		return dbErr
-	}
-
-	flowErr := flow.NewEvent(watcher, engine.ServiceManageInterface, watchDB, ccDB)
+	flowErr := flow.NewEvent(watchTask)
 	if flowErr != nil {
 		blog.Errorf("new watch event failed, err: %v", flowErr)
 		return flowErr
 	}
 
-	if err := identifier.NewIdentity(watcher, engine.ServiceManageInterface, watchDB, ccDB); err != nil {
+	if err := identifier.NewIdentity(watchTask); err != nil {
 		blog.Errorf("new host identity event failed, err: %v", err)
 		return err
 	}
 
-	if err := bsrelation.NewBizSetRelation(watcher, watchDB, ccDB); err != nil {
+	if err := bsrelation.NewBizSetRelation(watchTask); err != nil {
 		blog.Errorf("new biz set relation event failed, err: %v", err)
 		return err
+	}
+
+	taskErr = watchTask.Start()
+	if taskErr != nil {
+		return taskErr
 	}
 
 	return nil

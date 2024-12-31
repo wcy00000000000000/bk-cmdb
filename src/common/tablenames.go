@@ -281,7 +281,6 @@ var platformTableMap = map[string]struct{}{
 	BKTableNameTenantTemplate:     {},
 	BKTableNamePlatformAuditLog:   {},
 	BKTableNameWatchToken:         {},
-	BKTableNameLastWatchEvent:     {},
 	BKTableNameAPITask:            {},
 	BKTableNameAPITaskSyncHistory: {},
 	BKTableNameWatchDBRelation:    {},
@@ -327,6 +326,17 @@ func SplitTenantTableName(tenantTableName string) (string, string, error) {
 	if !strings.Contains(tenantTableName, "_") {
 		return "", "", errors.New("tenant table name is invalid")
 	}
+
+	if strings.Contains(tenantTableName, "_"+BKObjectInstShardingTablePrefix) {
+		sepIdx := strings.LastIndex(tenantTableName, "_"+BKObjectInstShardingTablePrefix)
+		return tenantTableName[:sepIdx], tenantTableName[sepIdx+1:], nil
+	}
+
+	if strings.Contains(tenantTableName, "_"+BKObjectInstAsstShardingTablePrefix) {
+		sepIdx := strings.LastIndex(tenantTableName, "_"+BKObjectInstAsstShardingTablePrefix)
+		return tenantTableName[:sepIdx], tenantTableName[sepIdx+1:], nil
+	}
+
 	sepIdx := strings.LastIndex(tenantTableName, "_")
 	if sepIdx == -1 {
 		return "", "", errors.New("tenant table name is invalid")

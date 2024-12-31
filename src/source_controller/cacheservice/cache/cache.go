@@ -55,7 +55,7 @@ func NewCache(loopW stream.LoopInterface, isMaster discovery.ServiceManageInterf
 		return nil, fmt.Errorf("new common topo cache failed, err: %v", err)
 	}
 
-	watchCli := watch.NewClient(watchDB, mongodb.Client(), redis.Client())
+	watchCli := watch.NewClient(mongodb.Dal("watch"), mongodb.Dal(), redis.Client())
 
 	generalCache, err := general.New(isMaster, loopW, watchCli)
 	if err != nil {
