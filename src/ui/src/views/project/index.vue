@@ -151,6 +151,7 @@
             :is-main-line="true"
             :type="attribute.type"
             :save-auth="saveAuth"
+            :submitting="submitting"
             @on-submit="handleSave"
             @on-cancel="handleSliderBeforeClose">
           </cmdb-form>
@@ -241,6 +242,7 @@
     },
     data() {
       return {
+        submitting: false,
         table: {
           header: [],
           list: [],
@@ -724,12 +726,14 @@
         const data = {
           data: [values]
         }
+        this.submitting = true
         projectService.create(data).then(() => {
           RouterQuery.refresh()
           this.closeCreateSlider()
           this.$success(this.$t('创建成功'))
           this.$http.cancel('post_searchrProject_$ne_disabled')
         })
+          .finally(() => this.submitting = false)
       },
       async handleMultipleSave(changedValues) {
         const includeProjectIds = this.selectedRows.map(r => r.id)
