@@ -1596,7 +1596,7 @@ func (attribute Attribute) PrettyValue(ctx context.Context, val interface{}) (st
 		return strconv.FormatInt(value, 10), nil
 	case common.FieldTypeFloat:
 		var value float64
-		value, err := util.GetFloat64ByInterface(value)
+		value, err := util.GetFloat64ByInterface(val)
 		if nil != err {
 			return "", fmt.Errorf("invalid value type for %s, value: %+v, err: %+v", fieldType, value, err)
 		}
@@ -1653,9 +1653,13 @@ func (attribute Attribute) PrettyValue(ctx context.Context, val interface{}) (st
 		if !ok {
 			return "", fmt.Errorf("invalid value type for %s, value: %+v", fieldType, val)
 		}
-
-		listOption, ok := attribute.Option.([]interface{})
-		if false == ok {
+		var listOption []interface{}
+		switch attributeOption := attribute.Option.(type) {
+		case primitive.A:
+			listOption = []interface{}(attributeOption)
+		case []interface{}:
+			listOption = attributeOption
+		default:
 			return "", fmt.Errorf("parse options for list type failed, option not slice type, option: %+v",
 				attribute.Option)
 		}
