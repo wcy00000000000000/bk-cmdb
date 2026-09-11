@@ -149,6 +149,7 @@ func (j *jwtHandler) Parse(header http.Header) (http.Header, error) {
 
 	jwtToken := httpheader.GetBkJWT(header)
 	if len(jwtToken) == 0 {
+		blog.ErrorJSON("xxx %s", header)
 		return nil, errors.New("jwt token is not set")
 	}
 
