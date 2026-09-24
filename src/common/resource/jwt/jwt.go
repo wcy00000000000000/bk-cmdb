@@ -41,9 +41,15 @@ func GetHandler() Handler {
 	return handler
 }
 
+// ParseOption is the option for Parse jwt info from http header
+type ParseOption struct {
+	// SkipUserValidate skip user validation, used for iam callback which does not need user authorization
+	SkipUserValidate bool
+}
+
 // Handler is jwt handler for http header
 type Handler interface {
-	Parse(header http.Header) (http.Header, error)
+	Parse(header http.Header, opts ...ParseOption) (http.Header, error)
 	Sign(header http.Header) (http.Header, error)
 }
 
@@ -120,7 +126,12 @@ type jwtHandler struct {
 }
 
 // Parse jwt info from api-gateway header to cc header
-func (j *jwtHandler) Parse(header http.Header) (http.Header, error) {
+func (j *jwtHandler) Parse(header http.Header, opts ...ParseOption) (http.Header, error) {
+	opt := new(ParseOption)
+	if len(opts) > 0 {
+		opt = &opts[0]
+	}
+
 	if !j.Enabled {
 		// compatible for esb request
 		// TODO remove this when esb is not supported
@@ -141,7 +152,7 @@ func (j *jwtHandler) Parse(header http.Header) (http.Header, error) {
 		return nil, err
 	}
 
-	if err = token.validate(); err != nil {
+	if err = token.validate(opt.SkipUserValidate); err != nil {
 		return nil, err
 	}
 
@@ -228,7 +239,7 @@ func (u *user) validate() error {
 }
 
 // validate claims
-func (c *claims) validate() error {
+func (c *claims) validate(skipUser bool) error {
 	if c.App == nil {
 		return errors.New("app info is not set")
 	}
@@ -237,13 +248,13 @@ func (c *claims) validate() error {
 		return err
 	}
 
-	if c.User == nil {
-		return errors.New("user info is not set")
+	if skipUser && (c.User == nil || c.User.UserName == "") {
+		c.User = &user{UserName: "skip_user"}
+		return nil
 	}
 
-	// iam v4 callback api do not need user authorization, add user info for it
-	if c.App.AppCode == "bk_iam_v4" {
-		c.User.UserName = "bk_iam_v4"
+	if c.User == nil {
+		return errors.New("user info is not set")
 	}
 
 	if err := c.User.validate(); err != nil {

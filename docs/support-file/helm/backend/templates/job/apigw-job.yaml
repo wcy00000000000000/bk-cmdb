@@ -64,6 +64,12 @@ spec:
           value: {{ .Values.apigatewaySync.cwAitsmAppCode }}
         - name: BK_OPS_APP_CODE
           value: {{ .Values.apigatewaySync.opsAppCode }}
+        - name: BK_DBM_APP_CODE
+          value: {{ .Values.apigatewaySync.dbmAppCode }}
+        - name: BK_AIDEV_APP_CODE
+          value: {{ .Values.apigatewaySync.aidevAppCode }}
+        - name: BK_FARA_APP_CODE
+          value: {{ .Values.apigatewaySync.faraAppCode }}
         - name: BK_IAM_V4_APP_CODE
           value: {{ .Values.apigatewaySync.bkIamV4AppCode }}
         resources:
