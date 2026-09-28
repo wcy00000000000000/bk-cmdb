@@ -126,8 +126,7 @@ type ResourceType struct {
 	// TODO: IAM currently does not support NameEn, need to confirm with IAM how to handle it.
 	NameEn    string         `json:"name_en,omitempty"`
 	Ancestors []types.TypeID `json:"ancestors"`
-	// TODO: IAM currently does not support TenantID, need to confirm with IAM how to handle it.
-	TenantID string `json:"tenant_id,omitempty"`
+	TenantID  string         `json:"tenant_id,omitempty"`
 }
 
 // ResourceAction is IAM V4 action
@@ -139,8 +138,7 @@ type ResourceAction struct {
 	ResourceTypeID types.TypeID   `json:"resource_type_id"`
 	AuthMode       types.AuthMode `json:"auth_mode,omitempty"`
 	// TODO: IAM currently does not support Hidden, need to confirm with IAM how to handle it.
-	Hidden bool `json:"hidden,omitempty"`
-	// TODO: IAM currently does not support TenantID, need to confirm with IAM how to handle it.
+	Hidden   bool   `json:"hidden,omitempty"`
 	TenantID string `json:"tenant_id,omitempty"`
 }
 
@@ -170,6 +168,7 @@ type Role struct {
 	// TODO: IAM currently does not support DescriptionEn, need to confirm with IAM how to handle it.
 	DescriptionEn string       `json:"description_en,omitempty"`
 	Actions       []RoleAction `json:"actions"`
+	TenantID      string       `json:"tenant_id,omitempty"`
 }
 
 // UpdateRoleReq is the request body of updating a role
@@ -236,16 +235,20 @@ type AuthSubject struct {
 	ID   string      `json:"id"`
 }
 
+type AuthAction struct {
+	ID types.ActionID `json:"id"`
+}
+
 // PlanReq is the request of the hybrid plan api.
 type PlanReq struct {
-	Subject  AuthSubject    `json:"subject"`
-	ActionID types.ActionID `json:"action_id"`
+	Subject AuthSubject `json:"subject"`
+	Action  AuthAction  `json:"action"`
 }
 
 // PlanByActionsReq is the request of the hybrid plan by actions api.
 type PlanByActionsReq struct {
-	Subject   AuthSubject      `json:"subject"`
-	ActionIDs []types.ActionID `json:"action_ids"`
+	Subject AuthSubject  `json:"subject"`
+	Actions []AuthAction `json:"actions"`
 }
 
 // ActionPlanRes is one action's authorization plan of the hybrid plan by actions api.

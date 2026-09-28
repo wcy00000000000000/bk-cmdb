@@ -184,6 +184,9 @@ func (i IAM) registerSystem(ctx context.Context, header http.Header, host string
 		return nil
 	}
 
+	// TODO: IAM currently does not support En, need to confirm with IAM how to handle it.
+	systemInfo.NameEn = sys.NameEn
+	systemInfo.DescriptionEn = sys.DescriptionEn
 	if !reflect.DeepEqual(systemInfo, sys) {
 		if err = i.Client.UpdateSystem(ctx, header, sys); err != nil {
 			blog.Errorf("update system(%+v) failed, err: %v, rid: %s", sys, err, rid)
@@ -301,7 +304,8 @@ func (i IAM) listAllResTypes(ctx context.Context, header http.Header, rid string
 
 // isResTypeEqual check if registered resource type is equal to expected one
 func (i IAM) isResTypeEqual(registeredResType, resType iam.ResourceType) bool {
-	if registeredResType.Name != resType.Name || registeredResType.NameEn != resType.NameEn {
+	// TODO: IAM currently does not support En, need to confirm with IAM how to handle it.
+	if registeredResType.Name != resType.Name {
 		return false
 	}
 	if len(registeredResType.Ancestors) != len(resType.Ancestors) {
@@ -439,8 +443,11 @@ func (i IAM) crossCompareResActions(ctx context.Context, header http.Header,
 			// registered resource action exist in current resource actions, should not be removed
 			delete(registeredResActionMap, resourceAction.ID)
 
-			if registeredAction.Name == resourceAction.Name && registeredAction.NameEn == resourceAction.NameEn &&
-				registeredAction.AuthMode == resourceAction.AuthMode {
+			// TODO: IAM currently does not support En, need to confirm with IAM how to handle it.
+			if resourceAction.AuthMode == "" {
+				resourceAction.AuthMode = iamtypes.AuthModeRBAC
+			}
+			if registeredAction.Name == resourceAction.Name && registeredAction.AuthMode == resourceAction.AuthMode {
 				continue
 			}
 
@@ -585,8 +592,8 @@ func (i IAM) crossCompareRoles(ctx context.Context, header http.Header, tenantOb
 		// registered role exists in current roles, should not be removed
 		delete(registeredRoleMap, role.ID)
 
-		if registered.Name != role.Name || registered.NameEn != role.NameEn ||
-			registered.Description != role.Description || registered.DescriptionEn != role.DescriptionEn {
+		// TODO: IAM currently does not support En, need to confirm with IAM how to handle it.
+		if registered.Name != role.Name || registered.Description != role.Description {
 			updateRolePrevNameMap[role.ID] = iamName{
 				Name:   registered.Name,
 				NameEn: registered.NameEn,

@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	iamtypes "configcenter/src/ac/iam/types"
+	"configcenter/src/common"
 	"configcenter/src/common/metadata"
 	"configcenter/src/thirdparty/apigw/iam"
 )
@@ -246,6 +247,35 @@ func genManagerRoles() []iam.Role {
 			},
 		},
 		{
+			ID:          iamtypes.ResourcePoolHostManager,
+			Name:        "主机池主机管理员",
+			Description: "主机池主机管理员",
+			Actions: []iam.RoleAction{
+				{ID: iamtypes.EditResourcePoolHost, ResourceTypeID: iamtypes.SysHost},
+				{ID: iamtypes.DeleteResourcePoolHost, ResourceTypeID: iamtypes.SysHost},
+				{ID: iamtypes.TransferHostOutOfResPoolDir, ResourceTypeID: iamtypes.SysResourcePoolDirectory},
+				{ID: iamtypes.TransferHostToResPoolDir, ResourceTypeID: iamtypes.SysResourcePoolDirectory},
+			},
+		},
+		{
+			ID:          iamtypes.HostTransferor,
+			Name:        "业务主机转移者",
+			Description: "业务主机转移者",
+			Actions: []iam.RoleAction{
+				{ID: iamtypes.TransferHostOutOfBiz, ResourceTypeID: iamtypes.Business},
+				{ID: iamtypes.TransferHostIntoBiz, ResourceTypeID: iamtypes.Business},
+			},
+		},
+		{
+			ID:          iamtypes.ResourcePoolHostTransferor,
+			Name:        "主机池主机转移者",
+			Description: "主机池主机转移者",
+			Actions: []iam.RoleAction{
+				{ID: iamtypes.TransferHostOutOfResPoolDir, ResourceTypeID: iamtypes.SysResourcePoolDirectory},
+				{ID: iamtypes.TransferHostToResPoolDir, ResourceTypeID: iamtypes.SysResourcePoolDirectory},
+			},
+		},
+		{
 			ID:          iamtypes.BizSvcTplManager,
 			Name:        "服务模板管理员",
 			Description: "服务模板管理员",
@@ -343,6 +373,14 @@ func genCreatorRoles() []iam.Role {
 			},
 		},
 		{
+			ID:          iamtypes.ResourcePoolHostCreator,
+			Name:        "主机池主机创建者",
+			Description: "主机池主机创建者",
+			Actions: []iam.RoleAction{
+				{ID: iamtypes.CreateResourcePoolHost, ResourceTypeID: iamtypes.SysResourcePoolDirectory},
+			},
+		},
+		{
 			ID:          iamtypes.FieldTplCreator,
 			Name:        "字段组合模板创建者",
 			Description: "字段组合模板创建者",
@@ -362,6 +400,14 @@ func genViewerRoles() []iam.Role {
 			Description: "检索服务使用者",
 			Actions: []iam.RoleAction{
 				{ID: iamtypes.UseFulltextSearch},
+			},
+		},
+		{
+			ID:          iamtypes.ResourcePoolHostViewer,
+			Name:        "主机池主机查看者",
+			Description: "主机池主机查看者",
+			Actions: []iam.RoleAction{
+				{ID: iamtypes.ViewResourcePoolHost},
 			},
 		},
 		{
@@ -386,7 +432,6 @@ func genViewerRoles() []iam.Role {
 			Description: "模型查看者",
 			Actions: []iam.RoleAction{
 				{ID: iamtypes.ViewSysModel, ResourceTypeID: iamtypes.SysModel},
-				{ID: iamtypes.ViewModelTopo},
 			},
 		},
 		{
@@ -507,11 +552,11 @@ func genPlatformRoles() []iam.Role {
 			ID:          iamtypes.TenantSetVisitor,
 			Name:        "租户集访问者",
 			Description: "租户集访问者",
-			// TODO set tenant after iam support it
 			Actions: []iam.RoleAction{
 				{ID: iamtypes.ViewTenantSet, ResourceTypeID: iamtypes.TenantSet},
 				{ID: iamtypes.AccessTenantSet, ResourceTypeID: iamtypes.TenantSet},
 			},
+			TenantID: common.BKDefaultTenantID,
 		},
 	}
 
@@ -521,7 +566,7 @@ func genPlatformRoles() []iam.Role {
 // genDynamicInstRoles generate manager and viewer roles for each dynamic model
 func genDynamicInstRoles(tenantObjects map[string][]metadata.Object) []iam.Role {
 	roles := make([]iam.Role, 0)
-	for _, objects := range tenantObjects {
+	for tenantID, objects := range tenantObjects {
 		for _, obj := range objects {
 			managerActions, viewerActions := make([]iam.RoleAction, 0), make([]iam.RoleAction, 0)
 
@@ -536,17 +581,18 @@ func genDynamicInstRoles(tenantObjects map[string][]metadata.Object) []iam.Role 
 				}
 			}
 
-			// TODO set tenant after iam support it
 			roles = append(roles, iam.Role{
 				ID:          GenIAMDynamicRoleID(obj.ID, iamtypes.DynamicInstManager),
 				Name:        fmt.Sprintf("%s实例管理员", obj.ObjectName),
 				Description: fmt.Sprintf("%s实例管理员", obj.ObjectName),
 				Actions:     managerActions,
+				TenantID:    tenantID,
 			}, iam.Role{
 				ID:          GenIAMDynamicRoleID(obj.ID, iamtypes.DynamicInstViewer),
 				Name:        fmt.Sprintf("%s实例查看者", obj.ObjectName),
 				Description: fmt.Sprintf("%s实例查看者", obj.ObjectName),
 				Actions:     viewerActions,
+				TenantID:    tenantID,
 			})
 		}
 	}
