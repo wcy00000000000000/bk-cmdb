@@ -14,8 +14,8 @@
 | bk_module_id         | int    | 否  | 模块ID                                                      |
 | bk_host_id           | int    | 否  | 主机ID, 注意：该字段不再维护，请用bk_host_list字段                         |
 | bk_host_list         | array  | 否  | 主机ID列表                                                    |
-| service_instance_ids | int    | 否  | 服务实例ID列表                                                  |
-| selectors            | int    | 否  | label过滤功能，operator可选值: `=`,`!=`,`exists`,`!`,`in`,`notin` |
+| service_instance_ids | array  | 否  | 服务实例ID列表                                                  |
+| selectors            | array  | 否  | label过滤功能，operator可选值: `=`,`!=`,`exists`,`!`,`in`,`notin` |
 | page                 | object | 是  | 分页参数                                                      |
 
 Note: 参数`bk_host_list`和`bk_host_id`只能有一个生效，`bk_host_id`不建议再使用。
