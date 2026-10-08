@@ -35,12 +35,12 @@ spec:
         - --exclude-resource
         - {{ . | quote }}
         {{- end }}
-        image: {{ .Values.image.registry }}/{{ .Values.bkai.image.repository }}:{{ .Values.bkai.image.tag }}
+        image: {{ .Values.image.registry }}/{{ .Values.bkai.image.repository }}:v{{ default .Chart.AppVersion .Values.bkai.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         name: cmdb-sync-bkai
         env:
         - name: BK_API_URL_TMPL
-          value: {{ .Values.bkApigatewayURLTmpl | quote }}
+          value: {{ .Values.common.apiGW.address | quote }}
         - name: BKAI_APP_CODE
           value: {{ .Values.common.apiGW.appCode | quote }}
         - name: BKAI_APP_SECRET

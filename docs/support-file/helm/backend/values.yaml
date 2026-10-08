@@ -962,9 +962,6 @@ bkNodemanUrl: http://apps.paas.example.com/bk--nodeman
 ##
 bkApigatewayName: "bk-cmdb"
 
-## @param bkApigatewayURLTmpl apigateway url template
-bkApigatewayURLTmpl: "http://bkapi.example.com"
-
 # 蓝鲸 GSE API Gateway url
 bkGseApiGatewayUrl: "http://bkapi.example.com"
 
@@ -1716,7 +1713,7 @@ bkai:
     ## @param bkai.image.repository 含接入目录的 bkai-init 镜像
     repository: blueking/bk-cmdb-aidev-init
     ## @param bkai.image.tag 镜像标签
-    tag: "1.0.0"
+    tag:
   ## @param bkai.tenantId 目标租户
   tenantId: system
   ## @param bkai.space 目标空间 ID，多租户填写完整 ID

@@ -8598,8 +8598,43 @@ paths:
       operationId: get_resource_pool_biz
       description: 查询主机池业务
       responses:
-        default:
-          description: ''
+        '200':
+          description: 请求成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: boolean
+                    description: 请求成功与否。true:请求成功；false请求失败
+                    example: true
+                  code:
+                    type: integer
+                    description: 错误编码。0表示success，>0表示失败错误
+                    example: 0
+                  message:
+                    type: string
+                    description: 请求失败返回的错误信息
+                    example: success
+                  permission:
+                    type: object
+                    nullable: true
+                    description: 权限信息
+                    additionalProperties: true
+                  data:
+                    type: object
+                    properties:
+                      bk_biz_id:
+                        type: integer
+                        description: 主机池业务id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+        required: false
       x-bk-apigateway-resource:
         isPublic: false
         allowApplyPermission: false
