@@ -105,6 +105,8 @@ enterprise:
 		-e 's|userVerifiedRequired: false|userVerifiedRequired: true|g' \
 		-e 's|operationId: |operationId: open_|g' >> $(SOURCE_ROOT)/bin/enterprise/cmdb/apidocs/resources.yaml
 	sed -n '/^components:/,$$p' ${DOCS_DIR}/apidoc/apigw/open/bk_apigw_resources_bk-cmdb.yaml >> $(SOURCE_ROOT)/bin/enterprise/cmdb/apidocs/resources.yaml
+	mkdir -p $(SOURCE_ROOT)/bin/enterprise/cmdb/ai-agent
+	cp -R ${DOCS_DIR}/ai-agent/. $(SOURCE_ROOT)/bin/enterprise/cmdb/ai-agent/
 
 .PHONY:clean
 clean:

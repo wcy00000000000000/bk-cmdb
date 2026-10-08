@@ -226,6 +226,7 @@ stages:
         # 授权的应用
         target_app_codes:
           - "{{ settings.BK_APP_CODE }}"
+          - ai-bkcmdb
         # 是否开启 OAuth2 公开客户端模式
         oauth2_public_client_enabled: true
         # 是否开启 OAuth2 个人客户端模式(个人 token)
@@ -236,6 +237,24 @@ stages:
         category_names:
           - "Official"
           - "ConfigManagement"
+      # 内部使用的隐藏 MCP，不对外公开。
+      - name: "internal"
+        title: "蓝鲸配置平台内部"
+        description: "蓝鲸配置平台内部专用 MCP Server。"
+        labels:
+          - "cmdb"
+          - "bkcmdb"
+        resource_names:
+          - get_resource_pool_biz
+        is_public: false
+        protocol_type: "streamable_http"
+        status: 1
+        target_app_codes:
+          - "{{ settings.BK_APP_CODE }}"
+          - ai-bkcmdb
+        oauth2_public_client_enabled: false
+        oauth2_personal_client_enabled: false
+        raw_response_enabled: false
 
 # 主动授权，网关主动给应用，添加访问网关所有资源的权限；
 # 用于命令 `grant_apigw_permissions`

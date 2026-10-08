@@ -962,6 +962,9 @@ bkNodemanUrl: http://apps.paas.example.com/bk--nodeman
 ##
 bkApigatewayName: "bk-cmdb"
 
+## @param bkApigatewayURLTmpl apigateway url template
+bkApigatewayURLTmpl: "http://bkapi.example.com"
+
 # 蓝鲸 GSE API Gateway url
 bkGseApiGatewayUrl: "http://bkapi.example.com"
 
@@ -1704,6 +1707,26 @@ apigatewaySync:
   cwAitsmAppCode: "cw_aitsm"
   ## 此变量在运维维护的变量中，没有对应的变量
   opsAppCode: "bk-ops"
+
+## ## @param bkai AIDev 智能体同步配置。默认关闭，开启前需先构建包含 ai-agent 的镜像，并填写目标空间。
+bkai:
+  ## @param bkai.enabled 是否在安装或升级后同步智能体
+  enabled: false
+  image:
+    ## @param bkai.image.repository 含接入目录的 bkai-init 镜像
+    repository: blueking/bk-cmdb-aidev-init
+    ## @param bkai.image.tag 镜像标签
+    tag: "1.0.0"
+  ## @param bkai.tenantId 目标租户
+  tenantId: system
+  ## @param bkai.space 目标空间 ID，多租户填写完整 ID
+  space: "system-bkaidev"
+  ## @param bkai.packagePath 镜像内 bkai.yaml 路径
+  packagePath: /bk-cmdb/bkai.yaml
+  ## @param bkai.publish 是否在同步后发布智能体
+  publish: false
+  ## @param bkai.excludeResources 跳过同步的资源，格式为 kind/code
+  excludeResources: []
 
 ## @param serviceDiscoveryEnv is the environment for service discovery
 serviceDiscoveryEnv:
