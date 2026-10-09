@@ -1,0 +1,251 @@
+# AIDEV Agent CLI Manifest v1
+apiVersion: bkai.tencent.com/aidev-agent/v1
+kind: Agent
+
+metadata:
+  code: ai-bkcmdb
+  name: 蓝鲸配置平台助手
+  description: 蓝鲸配置平台助手，帮助用户解决运维场景的配置查询、分析问题
+
+spec:
+  user_scope: public
+  admins: []
+  prompt:
+    type: inline
+    content: |
+      ## Role
+
+      你是一个专业的蓝鲸配置平台助手，帮助用户解决运维场景的配置查询、分析问题。
+
+      ## Constraints
+
+      - 只回答与蓝鲸配置平台相关的问题。
+      - 所有蓝鲸配置平台上的操作流程必须按照 ai-bkcmdb-skill SKILL中描述的执行。
+
+  model:
+    llm_code: aidev-chat-auto
+    fallback_model: null
+    temperature: 0.7
+    context_window: 16
+    llm_token_limit: 28000
+    max_tokens: 4096
+    tool_output_compress_thrd: 4096
+
+  conversation_settings:
+    opening_remark: 你好，我可以帮你查询主机，也可以创建集群模块，或转移主机。
+    predefined_questions:
+      - 如何查询主机？
+      - 如何创建集群或模块？
+      - 如何把主机转移到其他模块？
+    enable_chat_session: true
+    enable_word_selection_popup: true
+    commands:
+      - id: query_host
+        name: 查询主机
+        icon: null
+        content: |
+          主机标识：{{ identifier }}。
+          范围：业务 {{ bk_biz_name }}，集群 {{ bk_set_name }}，模块 {{ bk_module_name }}。
+          查询视图：{{ view }}。
+        components:
+          - type: textarea
+            key: identifier
+            name: 主机标识
+            placeholder: 按标识查询时填写，可多个；不按主机标识查询可留空
+            default: ""
+            rows: 3
+            required: false
+            hide: false
+          - type: text
+            key: bk_biz_name
+            name: 业务
+            placeholder: 可选，业务名称或 ID；查主机池可填「主机池」
+            default: ""
+            required: false
+            hide: false
+          - type: text
+            key: bk_set_name
+            name: 集群
+            placeholder: 可选，集群名称或 ID
+            default: ""
+            required: false
+            hide: false
+          - type: text
+            key: bk_module_name
+            name: 模块
+            placeholder: 可选，模块名称或 ID
+            default: ""
+            required: false
+            hide: false
+          - type: select
+            key: view
+            name: 查询视图
+            placeholder: 请选择视图
+            default: 概览
+            required: true
+            hide: false
+            options:
+              - label: 概览
+                value: 概览
+              - label: 拓扑
+                value: 拓扑
+              - label: 详情
+                value: 详情
+      - id: create_topology
+        name: 创建拓扑
+        icon: null
+        content: |
+          在业务 {{ bk_biz_name }} 下执行{{ action }}。
+          父节点 ID：{{ bk_parent_id }}。
+          集群：{{ bk_set_name }}。
+          模块：{{ bk_module_name }}。
+          集群模板：{{ set_template_name }}。
+        components:
+          - type: select
+            key: action
+            name: 操作类型
+            placeholder: 请选择操作
+            default: 创建集群
+            required: true
+            hide: false
+            options:
+              - label: 创建集群
+                value: 创建集群
+              - label: 创建模块
+                value: 创建模块
+              - label: 按模板创建集群
+                value: 按模板创建集群
+          - type: text
+            key: bk_biz_name
+            name: 业务名称
+            placeholder: 请输入业务名称
+            default: ""
+            required: true
+            hide: false
+          - type: text
+            key: bk_parent_id
+            name: 父节点 ID
+            placeholder: 创建集群时必填
+            default: ""
+            required: false
+            hide: false
+          - type: text
+            key: bk_set_name
+            name: 集群名称
+            placeholder: 创建集群时必填
+            default: ""
+            required: false
+            hide: false
+          - type: text
+            key: bk_module_name
+            name: 模块名称
+            placeholder: 创建模块时必填，多个模块用逗号分隔
+            default: ""
+            required: false
+            hide: false
+          - type: text
+            key: set_template_name
+            name: 集群模板名称
+            placeholder: 按模板创建时填写模板名称
+            default: ""
+            required: false
+            hide: false
+      - id: transfer_host
+        name: 转移主机
+        icon: null
+        content: |
+          将主机 {{ hosts }} 从{{ source }}转移到目标。
+          源业务：{{ source_biz_name }}。
+          目标业务：{{ target_biz_name }}。
+          目标集群：{{ target_set_name }}。
+          目标模块：{{ target_module_name }}。
+        components:
+          - type: select
+            key: source
+            name: 主机来源
+            placeholder: 请选择来源
+            default: 指定业务
+            required: true
+            hide: false
+            options:
+              - label: 主机池
+                value: 主机池
+              - label: 指定业务
+                value: 指定业务
+          - type: textarea
+            key: hosts
+            name: 主机标识
+            placeholder: IP、主机 ID 或固资号，可混合填写多个
+            default: ""
+            rows: 3
+            required: true
+            hide: false
+          - type: text
+            key: source_biz_name
+            name: 源业务
+            placeholder: 来源为指定业务时填写
+            default: ""
+            required: false
+            hide: false
+          - type: text
+            key: target_biz_name
+            name: 目标业务
+            placeholder: 转移到主机池时可留空
+            default: ""
+            required: false
+            hide: false
+          - type: text
+            key: target_set_name
+            name: 目标集群
+            placeholder: 请输入目标集群名称
+            default: ""
+            required: false
+            hide: false
+          - type: text
+            key: target_module_name
+            name: 目标模块
+            placeholder: 空闲机、故障机、待回收或普通模块
+            default: ""
+            required: false
+            hide: false
+
+  mcps:
+    - type: apigw
+      code: "{{ BK_CMDB_MCP_CODE | default('bk-cmdb-prod-mcp') }}"
+      is_selected_all: false
+      selected_tools:
+        - tool_name: open_list_hosts_without_biz
+        - tool_name: open_find_host_biz_relations
+        - tool_name: open_find_set_batch
+        - tool_name: open_find_module_batch
+        - tool_name: open_search_business
+        - tool_name: open_list_biz_hosts
+        - tool_name: open_search_set
+        - tool_name: open_search_module
+        - tool_name: open_list_set_template
+        - tool_name: open_list_set_template_related_service_template
+        - tool_name: open_list_service_template
+        - tool_name: open_get_service_template
+        - tool_name: open_list_proc_template
+        - tool_name: open_get_proc_template
+        - tool_name: open_create_set
+        - tool_name: open_create_module
+        - tool_name: open_list_resource_pool_hosts
+        - tool_name: open_get_biz_internal_module
+        - tool_name: open_transfer_host_module
+        - tool_name: open_transfer_host_to_idlemodule
+        - tool_name: open_transfer_host_to_faultmodule
+        - tool_name: open_transfer_host_to_recyclemodule
+        - tool_name: open_transfer_host_to_resourcemodule
+        - tool_name: open_transfer_resourcehost_to_idlemodule
+        - tool_name: open_transfer_host_across_biz
+    - type: apigw
+      code: "{{ BK_CMDB_INTERNAL_MCP_CODE | default('bk-cmdb-prod-internal') }}"
+      is_selected_all: false
+      selected_tools:
+        - tool_name: get_resource_pool_biz
+
+  skills:
+    - code: ai-bkcmdb-skill
+
+  tools: []
