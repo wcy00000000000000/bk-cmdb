@@ -1,0 +1,11 @@
+apiVersion: bkai.tencent.com/v1
+kind: Skill
+metadata:
+  code: ai-bkcmdb-skill
+  name: 蓝鲸配置平台 Skill
+  description: 专门用于蓝鲸配置平台（bk-cmdb）主机资产管理与主机拓扑管理的工具，覆盖主机、业务、集群/模块、拓扑等 CMDB 资源的归属、拓扑路径与配置属性，以及集群/模块拓扑创建。当 Prompt 涉及 bk-cmdb / 蓝鲸配置平台 / CMDB、主机资产、业务/集群/模块、拓扑路径、资产/配置信息、拓扑创建、主机转移等时优先使用此 Skill
+spec:
+  generate_type: space
+  is_public: false
+  tag_names:
+    - ["cmdb", "bkcmdb"]

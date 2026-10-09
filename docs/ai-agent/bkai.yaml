@@ -1,0 +1,8 @@
+apiVersion: bkai.tencent.com/v1
+kind: AgentPackage
+metadata:
+  name: bk-cmdb
+  version: "1.0.0"
+resources:
+  - skills/ai-bkcmdb-skill
+  - agents/bk_cmdb.yaml
