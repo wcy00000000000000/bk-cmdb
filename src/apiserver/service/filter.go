@@ -171,6 +171,11 @@ func (s *service) CacheFilterChan(req *restful.Request, resp *restful.Response, 
 	s.urlFilterChan(req, resp, chain, s.discovery.CacheService(), rootPath+"/cache", "/cache/v3")
 }
 
+// AuthFilterChan auth server api filter chan
+func (s *service) AuthFilterChan(req *restful.Request, resp *restful.Response, chain *restful.FilterChain) {
+	s.urlFilterChan(req, resp, chain, s.discovery.AuthServer(), rootPath+"/auth", "/auth/v3")
+}
+
 // TxnFilterChan transaction api filter chan
 func (s *service) TxnFilterChan(req *restful.Request, resp *restful.Response, chain *restful.FilterChain) {
 	// right now, only allow calling from web-server

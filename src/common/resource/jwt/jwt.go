@@ -241,6 +241,11 @@ func (c *claims) validate() error {
 		return errors.New("user info is not set")
 	}
 
+	// iam v4 callback api do not need user authorization, add user info for it
+	if c.App.AppCode == "bk_iam_v4" {
+		c.User.UserName = "bk_iam_v4"
+	}
+
 	if err := c.User.validate(); err != nil {
 		return err
 	}

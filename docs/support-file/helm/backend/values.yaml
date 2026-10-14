@@ -1704,6 +1704,8 @@ apigatewaySync:
   cwAitsmAppCode: "cw_aitsm"
   ## 此变量在运维维护的变量中，没有对应的变量
   opsAppCode: "bk-ops"
+  ## 此变量在运维维护的变量中，没有对应的变量
+  bkIamV4AppCode: "bk_iam_v4"
 
 ## @param serviceDiscoveryEnv is the environment for service discovery
 serviceDiscoveryEnv:

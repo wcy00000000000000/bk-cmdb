@@ -64,6 +64,8 @@ spec:
           value: {{ .Values.apigatewaySync.cwAitsmAppCode }}
         - name: BK_OPS_APP_CODE
           value: {{ .Values.apigatewaySync.opsAppCode }}
+        - name: BK_IAM_V4_APP_CODE
+          value: {{ .Values.apigatewaySync.bkIamV4AppCode }}
         resources:
           limits:
             cpu: 200m
