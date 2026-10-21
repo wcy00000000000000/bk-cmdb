@@ -100,70 +100,70 @@ func (lgc *Logics) getPermissionData(kit *rest.Kit, rs []meta.ResourceAttribute)
 	// permissionMap maps ResourceActionID and ResourceTypeID to ResourceInstances
 	permissionMap := make(map[iamtypes.ActionID]map[string][][]metadata.IamResourceInstance, 0)
 	for _, r := range rs {
-		actionID, err := iam.ConvertResourceAction(r.Type, r.Action, r.BusinessID)
+		opts, err := iam.AdaptAuthOptions(&r)
 		if err != nil {
 			return nil, err
 		}
 
-		rscType, err := iam.ConvertResourceType(r.Basic.Type, r.BusinessID)
-		if err != nil {
-			return nil, err
-		}
-
-		resource, err := iam.GenIamResource(actionID, *rscType, &r)
-		if err != nil {
-			return nil, err
-		}
-		actionIDRscTypeMap[actionID] = *rscType
-		if _, ok := permissionMap[actionID]; !ok {
-			permissionMap[actionID] = make(map[string][][]metadata.IamResourceInstance, 0)
-		}
-		sysInstModelIDs := getAllSysInstanceModelIDs(*rscType, resource)
-		if len(sysInstModelIDs) > 0 {
-			var err error
-			if sysInstModelIDNameMap, err = lgc.GetModelsIDNameMap(kit, sysInstModelIDs); err != nil {
-				return nil, err
-			}
-		}
-		// generate iam resource instances by its ancestors and itself
-		for _, res := range resource {
-			if len(res.ID) == 0 && res.Attribute == nil {
-				permissionMap[actionID][string(res.Type)] = nil
+		for _, opt := range opts {
+			if opt.Action == iamtypes.Skip {
 				continue
 			}
-			instance := make([]metadata.IamResourceInstance, 0)
-			if res.Attribute != nil {
-				ancestors, err := iam.ParseAncestorAttributes(res.Attribute)
+
+			actionIDRscTypeMap[opt.Action] = opt.Type
+			if _, ok := permissionMap[opt.Action]; !ok {
+				permissionMap[opt.Action] = make(map[string][][]metadata.IamResourceInstance, 0)
+			}
+			sysInstModelIDs := getAllSysInstanceModelIDs(opt.Type, opt.Resources)
+			if len(sysInstModelIDs) > 0 {
+				sysInstModelIDNameMap, err = lgc.GetModelsIDNameMap(kit, sysInstModelIDs)
 				if err != nil {
 					return nil, err
 				}
-				instance = append(instance, ancestors...)
-				for _, ancestor := range ancestors {
-					ancestorID, err := strconv.ParseInt(ancestor.ID, 10, 64)
+			}
+			// generate iam resource instances by its ancestors and itself
+			for _, res := range opt.Resources {
+				if len(res.ID) == 0 && res.Attribute == nil {
+					permissionMap[opt.Action][string(res.Type)] = nil
+					continue
+				}
+				instance := make([]metadata.IamResourceInstance, 0)
+				if res.Attribute != nil {
+					ancestors, err := iam.ParseAncestorAttributes(res.Attribute)
 					if err != nil {
-						blog.Errorf("parse instance id to int failed, instID:%#v, err: %s, rid: %s", ancestor.ID, err,
+						return nil, err
+					}
+					instance = append(instance, ancestors...)
+					for _, ancestor := range ancestors {
+						ancestorID, err := strconv.ParseInt(ancestor.ID, 10, 64)
+						if err != nil {
+							blog.Errorf("parse instance id to int failed, instID:%#v, err: %s, rid: %s", ancestor.ID,
+								err, kit.Rid)
+							return nil, err
+						}
+						instTypeIDsMap[iamtypes.TypeID(ancestor.Type)] = append(
+							instTypeIDsMap[iamtypes.TypeID(ancestor.Type)], ancestorID)
+					}
+				}
+				if len(res.ID) > 0 {
+					instance = append(instance, metadata.IamResourceInstance{
+						Type:     string(res.Type),
+						TypeName: getTypeName(iamtypes.TypeID(res.Type), sysInstModelIDNameMap),
+						ID:       res.ID,
+					})
+					instID, err := strconv.ParseInt(res.ID, 10, 64)
+					if err != nil {
+						blog.Errorf("parse instance id to int failed, instID:%#v, err: %s, rid: %s", res.ID, err,
 							kit.Rid)
 						return nil, err
 					}
-					instTypeIDsMap[iamtypes.TypeID(ancestor.Type)] = append(instTypeIDsMap[iamtypes.TypeID(ancestor.Type)],
-						ancestorID)
+					instTypeIDsMap[iamtypes.TypeID(res.Type)] = append(instTypeIDsMap[iamtypes.TypeID(res.Type)],
+						instID)
 				}
-			}
-			if len(res.ID) > 0 {
-				instance = append(instance, metadata.IamResourceInstance{
-					Type:     string(res.Type),
-					TypeName: getTypeName(iamtypes.TypeID(res.Type), sysInstModelIDNameMap),
-					ID:       res.ID,
-				})
-				instID, err := strconv.ParseInt(res.ID, 10, 64)
-				if err != nil {
-					blog.Errorf("parse instance id to int failed, instID:%#v, err: %s, rid: %s", res.ID, err, kit.Rid)
-					return nil, err
-				}
-				instTypeIDsMap[iamtypes.TypeID(res.Type)] = append(instTypeIDsMap[iamtypes.TypeID(res.Type)], instID)
-			}
 
-			permissionMap[actionID][string(res.Type)] = append(permissionMap[actionID][string(res.Type)], instance)
+				permissionMap[opt.Action][string(res.Type)] = append(permissionMap[opt.Action][string(res.Type)],
+					instance)
+			}
 		}
 	}
 	return &permissionData{permissionMap: permissionMap, actionIDRscTypeMap: actionIDRscTypeMap,
