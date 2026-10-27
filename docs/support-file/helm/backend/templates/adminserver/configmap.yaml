@@ -278,21 +278,6 @@ data:
     
 
   migrate.yaml: |-
-    configServer:
-      addrs: {{ include "cmdb.configAndServiceCenter.addr" . | quote }}
-      usr:
-      pwd:
-      tls:
-        insecureSkipVerify: {{ .Values.configAndServiceCenter.tls.insecureSkipVerify }}
-        password: {{ .Values.configAndServiceCenter.tls.password }}
-        {{- if .Values.configAndServiceCenter.tls.caFile }}
-        caFile: {{ .Values.certPath }}/zookeeper/{{ .Values.configAndServiceCenter.tls.caFile }}
-        {{- end }}
-        {{- if and .Values.configAndServiceCenter.tls.certFile .Values.configAndServiceCenter.tls.keyFile }}
-        certFile: {{ .Values.certPath }}/zookeeper/{{ .Values.configAndServiceCenter.tls.certFile }}
-        keyFile: {{ .Values.certPath }}/zookeeper/{{ .Values.configAndServiceCenter.tls.keyFile }}
-        {{- end }}
-
     registerServer:
       addrs: {{ include "cmdb.configAndServiceCenter.addr" . | quote }}
       usr: {{ .Values.configAndServiceCenter.user }}

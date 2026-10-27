@@ -66,7 +66,10 @@ type BackboneParameter struct {
 func newSvcManagerClient(ctx context.Context, zkConf ccconfig.ZkConfig) (*zk.ZkClient, error) {
 	var err error
 	for retry := 0; retry < maxRetry; retry++ {
-		client := zk.NewZkClient(zkConf, 40*time.Second)
+		client, newErr := zk.NewZkClient(zkConf, 40*time.Second)
+		if newErr != nil {
+			return nil, newErr
+		}
 		if err = client.Start(); err != nil {
 			blog.Errorf("connect regdiscv [%s] failed: %v", zkConf.Addr, err)
 			time.Sleep(time.Second * 2)
@@ -115,8 +118,10 @@ func newApiMachinery(disc discovery.DiscoveryInterface,
 }
 
 func validateParameter(input *BackboneParameter) error {
-	if !input.Disable && input.Zk.Addr == "" {
-		return fmt.Errorf("regdiscv can not be emtpy")
+	if !input.Disable {
+		if err := input.Zk.Validate(); err != nil {
+			return err
+		}
 	}
 	if input.SrvInfo.IP == "" {
 		return fmt.Errorf("addrport ip can not be emtpy")

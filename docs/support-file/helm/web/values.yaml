@@ -379,6 +379,10 @@ web:
 ##
 configAndServiceCenter:
   addr:
+  ## @param configAndServiceCenter.user zookeeper auth username, required
+  user:
+  ## @param configAndServiceCenter.password zookeeper auth password, required
+  password:
   tls:
     insecureSkipVerify: true
     caFile: "zookeeper/zk.ca"

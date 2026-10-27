@@ -47,6 +47,8 @@ spec:
         - --log-dir={{ .Values.webserver.command.logDir }}
         {{- end }}
         - --regdiscv={{ .Values.configAndServiceCenter.addr }}
+        - --regdiscv-user={{ .Values.configAndServiceCenter.user }}
+        - --regdiscv-password={{ .Values.configAndServiceCenter.password }}
         - --v={{ .Values.webserver.command.logLevel }}
         - --logtostderr={{ .Values.webserver.command.logToStdErr }}
         {{ include "cmdb.configAndServiceCenter.certCommand" . | nindent 8 }}
