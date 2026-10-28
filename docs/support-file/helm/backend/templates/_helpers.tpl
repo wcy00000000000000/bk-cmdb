@@ -355,6 +355,7 @@ imagePullSecrets:
 {{- if .Values.configAndServiceCenter.tls.password }}
 - --regdiscv-certpassword={{ .Values.certPath }}/{{ .Values.configAndServiceCenter.tls.password }}
 {{- end }}
+{{- end }}
 {{- end -}}
 
 {{- define "cmdb.es.certVolumeMount" -}}
@@ -382,14 +383,6 @@ imagePullSecrets:
     {{- else -}}
       default
     {{- end -}}
-{{- end -}}
-
-{{- define "cmdb.kms.role" -}}
-{{- printf "%s.%s.%s.%s.%s" .Values.kms.tenantID .Values.kms.scopeType .Values.kms.scopeName .Values.kms.credentialType .Values.kms.credentialName -}}
-{{- end -}}
-
-{{- define "cmdb.kms.credentialPath" -}}
-{{- printf "%s/%s/%s/%s/%s" .Values.kms.tenantID .Values.kms.scopeType .Values.kms.scopeName .Values.kms.credentialType .Values.kms.credentialName -}}
 {{- end -}}
 
 {{- define "cmdb.kms.value" -}}
@@ -425,8 +418,8 @@ imagePullSecrets:
 {{- end -}}
 
 {{- define "cmdb.kms.serviceAccount" -}}
-{{- if and .Values.kms.enabled (not .Values.serviceAccount.create) -}}
-{{- fail "serviceAccount.create must be true when kms.enabled is true" -}}
+{{- if and .Values.kms.enabled (not .Values.serviceAccount.create) (not .Values.serviceAccount.name) -}}
+{{- fail "serviceAccount.create must be true or serviceAccount.name must be set when kms.enabled is true" -}}
 {{- end -}}
 {{- if or .Values.kms.enabled .Values.serviceAccount.create .Values.serviceAccount.name }}
 serviceAccountName: {{ include "cmdb.serviceAccountName" . }}

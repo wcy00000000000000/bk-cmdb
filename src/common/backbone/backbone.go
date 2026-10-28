@@ -145,11 +145,11 @@ func validateParameter(input *BackboneParameter) error {
 
 // NewBackbone new backbone.
 func NewBackbone(ctx context.Context, input *BackboneParameter) (*Engine, error) {
-	if err := validateParameter(input); err != nil {
-		return nil, err
-	}
 	if err := kms.FillZk(&input.Zk); err != nil {
 		return nil, fmt.Errorf("load kms credential failed, err: %v", err)
+	}
+	if err := validateParameter(input); err != nil {
+		return nil, err
 	}
 
 	metricService := metrics.NewService(metrics.Config{ProcessName: common.GetIdentification(),
