@@ -5,11 +5,11 @@ spec_version: 2
 release:
   # 发布版本号；
   # 资源配置更新，需更新此版本号才会发布资源版本，此版本号和 sdk 版本号一致，错误设置会影响调用方使用
-  version: 3.15.2-alpha3
+  version: 3.15.2-iam7
   # 版本标题
-  title: "3.15.2-alpha3"
+  title: "3.15.2-iam7"
   # 版本描述
-  comment: "3.15.2-alpha3"
+  comment: "3.15.2-iam7"
 
 # 定义网关基本信息，用于命令 `sync_apigw_config`
 apigateway:
@@ -53,7 +53,7 @@ stages:
     # 同步 MCP Server 相关配置
     mcp_servers:
       - name: "mcp"
-        title: "蓝鲸配置平台"
+        title: "3.15.2-iam7"
         description: "蓝鲸配置平台官方 MCP Server，提供业务、主机、拓扑、模型和容器资源查询与管理能力。"
         labels:
           - "cmdb"
@@ -239,7 +239,7 @@ stages:
           - "ConfigManagement"
       # 内部使用的隐藏 MCP，不对外公开。
       - name: "internal"
-        title: "蓝鲸配置平台内部"
+        title: "3.15.2-iam7"
         description: "蓝鲸配置平台内部专用 MCP Server。"
         labels:
           - "cmdb"
