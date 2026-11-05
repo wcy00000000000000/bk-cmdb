@@ -53,7 +53,7 @@ stages:
     # 同步 MCP Server 相关配置
     mcp_servers:
       - name: "mcp"
-        title: "3.15.2-iam7"
+        title: "蓝鲸配置平台"
         description: "蓝鲸配置平台官方 MCP Server，提供业务、主机、拓扑、模型和容器资源查询与管理能力。"
         labels:
           - "cmdb"
@@ -239,7 +239,7 @@ stages:
           - "ConfigManagement"
       # 内部使用的隐藏 MCP，不对外公开。
       - name: "internal"
-        title: "3.15.2-iam7"
+        title: "蓝鲸配置平台内部"
         description: "蓝鲸配置平台内部专用 MCP Server。"
         labels:
           - "cmdb"

@@ -205,7 +205,7 @@ func (a *apiServer) GetHostData(ctx context.Context, h http.Header,
 	params mapstr.MapStr) (resp *metadata.QueryInstResult, err error) {
 
 	resp = new(metadata.QueryInstResult)
-	subPath := "hosts/search/asstdetail"
+	subPath := "/findmany/hosts/search/noauth"
 
 	err = a.client.Post().
 		WithContext(ctx).
