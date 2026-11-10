@@ -227,6 +227,9 @@ data:
       # 用于解密根据RFC1423加密的证书密钥的PEM块
       password: {{ include "cmdb.kms.value" (dict "enabled" .Values.kms.enabled "value" .Values.common.tls.password) }}
 
+    # 多租户下查询虚拟用户使用的管理员用户名
+    bkAdminUsername: {{ .Values.common.bkAdminUsername }}
+
     # 调用apigw接口相关配置
     apiGW:
       bkGseApiGatewayUrl: {{ .Values.bkGseApiGatewayUrl }}
