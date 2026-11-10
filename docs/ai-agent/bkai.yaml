@@ -4,5 +4,5 @@ metadata:
   name: bk-cmdb
   version: "1.0.0"
 resources:
-  - skills/ai-bkcmdb-skill
+  - skills/bkcmdb-host-management
   - agents/bk_cmdb.yaml

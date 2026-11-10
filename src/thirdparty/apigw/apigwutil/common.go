@@ -97,6 +97,7 @@ func ParseApiGWConfig(path string) (*ApiGWConfig, error) {
 		blog.Errorf("get bkAdminUsername config failed, err: %v", err)
 		return nil, err
 	}
+	blog.Infof("bkAdminUsername: %s", bkAdminUsername)
 
 	tlsConfig, err := cc.NewTLSClientConfigFromConfig(path + ".tls")
 	if err != nil {

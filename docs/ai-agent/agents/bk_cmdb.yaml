@@ -3,8 +3,8 @@ apiVersion: bkai.tencent.com/aidev-agent/v1
 kind: Agent
 
 metadata:
-  code: ai-bkcmdb
-  name: 蓝鲸配置平台助手
+  code: ai-bkcmdb-helper
+  name: 蓝鲸配置平台-助手
   description: 蓝鲸配置平台助手，帮助用户解决运维场景的配置查询、分析问题
 
 spec:
@@ -20,7 +20,7 @@ spec:
       ## Constraints
 
       - 只回答与蓝鲸配置平台相关的问题。
-      - 所有蓝鲸配置平台上的操作流程必须按照 ai-bkcmdb-skill SKILL中描述的执行。
+      - 所有蓝鲸配置平台上的操作流程必须按照 bkcmdb-host-management SKILL中描述的执行。
 
   model:
     llm_code: aidev-chat-auto
@@ -246,6 +246,6 @@ spec:
         - tool_name: get_resource_pool_biz
 
   skills:
-    - code: ai-bkcmdb-skill
+    - code: bkcmdb-host-management
 
   tools: []
