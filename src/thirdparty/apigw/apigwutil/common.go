@@ -92,13 +92,6 @@ func ParseApiGWConfig(path string) (*ApiGWConfig, error) {
 		return nil, err
 	}
 
-	bkAdminUsername, err := cc.String("bkAdminUsername")
-	if err != nil {
-		blog.Errorf("get bkAdminUsername config failed, err: %v", err)
-		return nil, err
-	}
-	blog.Infof("bkAdminUsername: %s", bkAdminUsername)
-
 	tlsConfig, err := cc.NewTLSClientConfigFromConfig(path + ".tls")
 	if err != nil {
 		blog.Errorf("get api gateway tls config error, err: %v", err)
@@ -106,11 +99,19 @@ func ParseApiGWConfig(path string) (*ApiGWConfig, error) {
 	}
 
 	apiGWConfig := &ApiGWConfig{
-		AppCode:         appCode,
-		AppSecret:       appSecret,
-		Username:        username,
-		BKAdminUsername: bkAdminUsername,
-		TLSConfig:       &tlsConfig,
+		AppCode:   appCode,
+		AppSecret: appSecret,
+		Username:  username,
+		TLSConfig: &tlsConfig,
 	}
+
+	if cc.IsExist("bkAdminUsername") {
+		apiGWConfig.BKAdminUsername, err = cc.String("bkAdminUsername")
+		if err != nil {
+			blog.Errorf("get bkAdminUsername config failed, err: %v", err)
+			return nil, err
+		}
+	}
+
 	return apiGWConfig, nil
 }

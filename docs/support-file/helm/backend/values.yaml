@@ -1355,19 +1355,19 @@ common:
       caFile:
       # 用于解密根据RFC1423加密的证书密钥的PEM块
       password:
-  # 多租户下查询虚拟用户使用的管理员用户名
-  bkAdminUsername:
   auditCenter:
     enabled: false
     appCode:
     appSecret:
     endpoint:
     token:
-
   # http client config
   httpClient:
     ## @param httpClient.idleConnTimeoutSeconds http client idle connection timeout seconds
     idleConnTimeoutSeconds: 0
+
+# 多租户下查询虚拟用户使用的管理员用户名
+bkAdminUsername:
 
 ## @section zookeeper parameters
 ##

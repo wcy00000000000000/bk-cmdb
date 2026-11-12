@@ -19,6 +19,7 @@ package iam
 import (
 	"fmt"
 
+	"configcenter/pkg/tenant/tools"
 	iamtypes "configcenter/src/ac/iam/types"
 	"configcenter/src/common"
 	"configcenter/src/common/metadata"
@@ -538,7 +539,10 @@ func genPlatformRoles() []iam.Role {
 				{ID: iamtypes.DeleteContainerPod},
 			},
 		},
-		{
+	}
+
+	if tools.GetDefaultTenant() == common.BKDefaultTenantID {
+		roles = append(roles, iam.Role{
 			ID:          iamtypes.TenantSetVisitor,
 			Name:        "租户集访问者",
 			Description: "租户集访问者",
@@ -547,7 +551,7 @@ func genPlatformRoles() []iam.Role {
 				{ID: iamtypes.AccessTenantSet, ResourceTypeID: iamtypes.TenantSet},
 			},
 			TenantID: common.BKDefaultTenantID,
-		},
+		})
 	}
 
 	return roles
